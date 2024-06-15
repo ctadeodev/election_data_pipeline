@@ -84,7 +84,7 @@ To run this project locally or in your own environment, follow these steps:
 ## Directory Structure
 ```graphql
 project-root/
-├── dags/                 # Airflow DAGs and configurations
+├── dags/                    # Airflow DAGs and configurations
 ├── db/                      # database initialization scripts
 ├── dbt/                     # DBT models and transformations
 ├── docker-compose.yml       # Docker configuration for Kafka and PostgreSQL
