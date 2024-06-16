@@ -33,7 +33,8 @@ CREATE TABLE votes (
     vote_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (voter_id) REFERENCES voters (voter_id),
     FOREIGN KEY (candidate_id) REFERENCES candidates (candidate_id),
-    FOREIGN KEY (election_id) REFERENCES elections (election_id)
+    FOREIGN KEY (election_id) REFERENCES elections (election_id),
+    CONSTRAINT unique_vote_per_election UNIQUE (voter_id, election_id)
 );
 
 -- Insert sample data for candidates
