@@ -1,16 +1,17 @@
-import json
 import time
 import logging
 import random
 from datetime import datetime
 
 import requests
-from kafka import KafkaProducer
 
 from config import VOTERS_TURNOUT
 
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+API_URL = 'http://localhost:5000/register'
 
 
 MIN_VOTING_AGE = 18
@@ -51,10 +52,6 @@ def fetch_voter_data(num_voters):
 
 def produce_registration_events():
     voter_counts = set_voter_counts_per_state(1 / 10000)
-    producer = KafkaProducer(
-        bootstrap_servers=['localhost:9092'],
-        value_serializer=lambda v: json.dumps(v).encode('utf-8')
-    )
     try:
         while voter_counts:
             for voter in fetch_voter_data(500):
@@ -70,12 +67,11 @@ def produce_registration_events():
                     'event_type': 'registration',
                     'voter': voter
                 }
-                producer.send('registration', value=event)
+                requests.post(API_URL, json=event)
                 logger.info("Produced registration event: %s", event)
-                time.sleep(0.1)  # simulate delay
-    finally:
-        producer.flush()
-        producer.close()
+                time.sleep(0.1)
+    except KeyboardInterrupt:
+        pass
 
 
 if __name__ == '__main__':

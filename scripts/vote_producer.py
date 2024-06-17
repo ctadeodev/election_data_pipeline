@@ -1,15 +1,17 @@
 import time
-import json
 import random
 import logging
 
+import requests
 import psycopg2
-from kafka import KafkaProducer
 
 from config import VOTERS_TURNOUT, CANDIDATE_VOTE_WEIGHTS
 
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+API_URL = 'http://localhost:5000/vote'
 
 
 def set_expected_voters_turnout(ratio):
@@ -50,7 +52,6 @@ def select_candidate_weighted(candidate_ids, state):
 
 
 def produce_voting_events(election_id, batch_size=200):
-    # Connect to PostgreSQL database
     conn = psycopg2.connect(
         dbname='election_db',
         user='user',
@@ -59,17 +60,8 @@ def produce_voting_events(election_id, batch_size=200):
         port='5432'
     )
     cur = conn.cursor()
-
-    # Query to fetch voters not yet voted in the specified election_id
     cur.execute("""SELECT candidate_id FROM candidates WHERE election_id = %s""", (election_id, ))
     candidate_ids = [data[0] for data in cur.fetchall()]
-
-    # Initialize Kafka producer (example, replace with your Kafka configuration)
-    producer = KafkaProducer(
-        bootstrap_servers=['localhost:9092'],
-        value_serializer=lambda v: json.dumps(v).encode('utf-8')
-    )
-
     expected_voter_turnout = set_expected_voters_turnout(1 / 10000)
     offset = 0
     try:
@@ -80,7 +72,6 @@ def produce_voting_events(election_id, batch_size=200):
             )
             if not pending_voters_count:
                 break
-            # Query to fetch voters not yet voted in the specified election_id
             cur.execute("""
                 SELECT v.voter_id, v.state
                 FROM voters v
@@ -99,8 +90,6 @@ def produce_voting_events(election_id, batch_size=200):
                 offset = 0
             else:
                 offset += batch_size
-            
-
             for row in rows:
                 voter_id, state = row
                 if state in pending_voters_count:
@@ -109,13 +98,12 @@ def produce_voting_events(election_id, batch_size=200):
                         pending_voters_count.pop(state)
                 else:
                     continue
-                # Create voting event/message
                 event = {
                     'voter_id': voter_id,
                     'election_id': election_id,
                     'candidate_id': select_candidate_weighted(candidate_ids, state)
                 }
-                producer.send('vote', value=event)
+                requests.post(API_URL, json=event)
                 logger.info("Produced registration event: %s", event)
                 time.sleep(0.1)
             
@@ -123,12 +111,8 @@ def produce_voting_events(election_id, batch_size=200):
     except KeyboardInterrupt:
         pass
     finally:
-        # Close cursor and connection
         cur.close()
         conn.close()
-        # Flush and close Kafka producer
-        producer.flush()
-        producer.close()
 
 
 if __name__ == '__main__':
