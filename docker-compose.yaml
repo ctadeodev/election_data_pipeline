@@ -16,9 +16,11 @@ services:
     ports:
       - "9092:9092"
     environment:
-      KAFKA_BROKER_ID: 1
+      KAFKA_BROKER_ID: 0
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
     volumes:
       - kafka_data:/var/lib/kafka/data
@@ -26,16 +28,61 @@ services:
   postgres:
     image: postgres:latest
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: election_db
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
     ports:
       - "5432:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
       - ./db:/docker-entrypoint-initdb.d
 
+  airflow:
+    build:
+      context: ./airflow
+      dockerfile: Dockerfile
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      - LOAD_EX=n
+      - EXECUTOR=Local
+      # AIRFLOW_DATABASE_NAME: airflow
+      # AIRFLOW_DATABASE_USER: user
+      # AIRFLOW_DATABASE_PASSWORD: password
+      # AIRFLOW_EXECUTOR: LocalExecutor
+      # AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://user:password@postgres/airflow
+      # AIRFLOW__WEBSERVER__SECRET_KEY: mysecretkey
+    ports:
+      - "8080:8080"
+    command: webserver
+    volumes:
+      - ./dags:/usr/local/airflow/dags
+      # - ./plugins:/usr/local/airflow/plugins
+      # - ./config/airflow.cfg:/usr/local/airflow/airflow.cfg
+      # - airflow_logs:/usr/local/airflow/logs
+    healthcheck:
+        test: ["CMD-SHELL", "[ -f /usr/local/airflow/airflow-webserver.pid ]"]
+        interval: 30s
+        timeout: 30s
+        retries: 3
+
+  api:
+    build:
+      context: ./api
+    ports:
+      - "5000:5000"
+    environment:
+      - KAFKA_BROKER=kafka:29092
+    depends_on:
+      - kafka
+
+  kafkacat:
+    image: confluentinc/cp-kafkacat
+    command: sleep infinity
+
 volumes:
+  airflow_logs:
   zookeeper_data:
   kafka_data:
-  pgdata:
+  postgres_data:

@@ -1,0 +1,11 @@
+version: 2
+
+sources:
+  - name: election_source
+    database: election_db
+    schema: public
+    tables:
+      - name: voters
+      - name: candidates
+      - name: elections
+      - name: votes

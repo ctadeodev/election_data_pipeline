@@ -1,0 +1,7 @@
+dbt-core==1.0.0
+dbt-snowflake==1.0.0
+psycopg2==2.9.9
+snowflake-connector-python==2.7.3
+apache-airflow-providers-postgres==2.3.0
+apache-airflow-providers-snowflake==2.4.0
+typing-extensions==4.7.1
