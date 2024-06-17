@@ -40,8 +40,8 @@ CREATE TABLE votes (
 -- Insert sample data for candidates
 INSERT INTO candidates (full_name, party, election_id) VALUES
     ('Abraham Lincoln', 'Republican', 1),
-    ('Franklin D. Roosevelt', 'Democratic', 1);
-    ('George Washington', 'Federalist', 1),
+    ('Franklin D. Roosevelt', 'Democratic', 1),
+    ('George Washington', 'Federalist', 1);
 
 -- Insert sample data for elections
 INSERT INTO elections (election_name, election_date) VALUES
