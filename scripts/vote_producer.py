@@ -1,3 +1,4 @@
+import os
 import time
 import random
 import logging
@@ -53,10 +54,10 @@ def select_candidate_weighted(candidate_ids, state):
 
 def produce_voting_events(election_id, batch_size=200):
     conn = psycopg2.connect(
-        dbname='election_db',
-        user='user',
-        password='password',
-        host='localhost',
+        dbname=os.environ['PG_DB'],
+        user=os.environ['PG_USER'],
+        password=os.environ['PG_PASSWORD'],
+        host=os.environ['PG_HOST'],
         port='5432'
     )
     cur = conn.cursor()
@@ -67,7 +68,7 @@ def produce_voting_events(election_id, batch_size=200):
     try:
         while True:
             pending_voters_count = get_pending_voters(
-                expected_voter_turnout, 
+                expected_voter_turnout,
                 get_current_voters_turnout(cur, election_id)
             )
             if not pending_voters_count:
@@ -106,7 +107,7 @@ def produce_voting_events(election_id, batch_size=200):
                 requests.post(API_URL, json=event)
                 logger.info("Produced registration event: %s", event)
                 time.sleep(0.1)
-            
+
             time.sleep(random.randint(3, 5))
     except KeyboardInterrupt:
         pass

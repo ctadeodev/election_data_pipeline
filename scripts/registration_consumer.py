@@ -28,13 +28,14 @@ def consume_registration_events(batch_size=500):
         'registration',
         bootstrap_servers=os.environ['KAFKA_BROKER'],
         auto_offset_reset='earliest',
+        api_version=(2, 5, 0),
         value_deserializer=lambda v: json.loads(v.decode('utf-8'))
     )
     conn = psycopg2.connect(
-        dbname="election_db",
-        user="user",
-        password="password",
-        host="localhost",
+        dbname=os.environ['PG_DB'],
+        user=os.environ['PG_USER'],
+        password=os.environ['PG_PASSWORD'],
+        host=os.environ['PG_HOST'],
         port="5432"
     )
     cur = conn.cursor()
