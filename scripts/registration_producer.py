@@ -1,6 +1,6 @@
 import time
-import logging
 import random
+import logging
 from datetime import datetime
 
 import requests
