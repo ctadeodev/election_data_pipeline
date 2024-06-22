@@ -46,6 +46,7 @@ Kafka is used to stream voter registration and voting events (registration and v
 ### 2. Staging and Initial Processing:
 Data from Kafka is consumed and stored in a PostgreSQL staging database (election_db).
 Two main tables: voters and votes, capturing voter registration details and voting events.
+Data is incrementally loaded to Snowflake Staging tables [Reference](#https://community.snowflake.com/s/article/PostgreSQL-to-Snowflake-ETL-Steps-to-Migrate-Data)
 
 ### 3. Data Transformation and Loading:
 Apache Airflow is used to orchestrate the ETL process.
