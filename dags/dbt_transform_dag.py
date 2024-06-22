@@ -25,5 +25,5 @@ dbt_snowflake_dag = DbtDag(
     schedule_interval=timedelta(minutes=5),
     start_date=days_ago(1),
     catchup=False,
-    dag_id='dbt_transform_dag'
+    dag_id='dbt_transformations'
 )
