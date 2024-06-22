@@ -1,8 +1,6 @@
 import os
 from datetime import timedelta
 
-import pandas as pd
-
 from airflow import DAG
 from airflow.utils.dates import days_ago
 from airflow.operators.empty import EmptyOperator
@@ -66,9 +64,18 @@ def update_last_pull_info(table, logical_date):
 
 
 start = EmptyOperator(task_id='start', dag=dag)
+start_candidates = EmptyOperator(task_id='start_candidates', dag=dag, trigger_rule='none_failed')
+start_votes = EmptyOperator(task_id='start_votes', dag=dag, trigger_rule='none_failed')
+
+start_tasks = [
+    (start, start_candidates),
+    (start, start_candidates),
+    (start_candidates, start_votes),
+    (start_votes, ),
+]
 
 tables = ['voters', 'elections', 'candidates', 'votes']
-for table in tables:
+for idx, table in enumerate(tables):
     extract_data = BranchPythonOperator(
         task_id=f'extract_{table}_data_from_postgres',
         python_callable=extract_data_from_postgres,
@@ -103,5 +110,9 @@ for table in tables:
         dag=dag,
     )
 
-    start >> extract_data >> [skip_task, stage_data]
+    start_tasks[idx][0] >> extract_data >> [skip_task, stage_data]
     stage_data >> copy_data >> update_metadata
+    try:
+        [skip_task, update_metadata] >> start_tasks[idx][1]
+    except IndexError:
+        pass
