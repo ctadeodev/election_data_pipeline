@@ -3,7 +3,7 @@ SELECT
     election_id,
     COUNT(*) as count
 FROM 
-    {{ source('election_source', 'votes') }}
+    {{ source('raw', 'votes') }}
 GROUP BY 
     voter_id, 
     election_id

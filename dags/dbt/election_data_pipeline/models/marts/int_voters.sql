@@ -1,3 +1,5 @@
+{{ config(materialized='table') }}
+
 select
     voter_id,
     full_name,
@@ -5,5 +7,4 @@ select
     gender,
     registration_date,
     state
-from
-    {{ source('election_source', 'voters') }}
+from {{ ref('stg_voters') }}

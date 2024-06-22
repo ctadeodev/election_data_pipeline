@@ -31,11 +31,9 @@ clean-targets:         # directories to be removed by `dbt clean`
 # files using the `{{ config(...) }}` macro.
 models:
   election_data_pipeline:
-    source_schema: public
-    source_database: election_db
     staging:
-      +materialized: view
-      snowflake_warehouse: dbt_wh
+      +materialized: incremental
+      snowflake_warehouse: election_wh
     marts:
-      +materialized: table
-      snowflake_warehouse: dbt_wh
+      # +materialized: table
+      snowflake_warehouse: election_wh

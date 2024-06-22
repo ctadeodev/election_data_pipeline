@@ -1,9 +1,9 @@
 version: 2
 
 sources:
-  - name: election_source
-    database: election_db
-    schema: public
+  - name: raw
+    database: election_db_raw  
+    schema: election_schema  
     tables:
       - name: voters
       - name: candidates
