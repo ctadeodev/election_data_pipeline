@@ -12,6 +12,7 @@ with votes_with_voters as (
 select
     state,
     count(distinct case when vote_timestamp is not null then voter_id end) as voted,
-    count(distinct case when vote_timestamp is null then voter_id end) as did_not_vote
+    count(distinct case when vote_timestamp is null then voter_id end) as did_not_vote,
+    count(distinct voter_id) as total_voters
 from votes_with_voters
 group by state
