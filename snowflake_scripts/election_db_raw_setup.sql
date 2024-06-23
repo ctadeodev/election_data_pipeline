@@ -1,6 +1,6 @@
 use role accountadmin;
 create role if not exists dbt_role;
-grant role dbt_role to user mjmendez;
+grant role dbt_role to user <Snowflake username>;
 
 create warehouse if not exists election_wh with warehouse_size='x-small';
 create database if not exists election_db_raw;
