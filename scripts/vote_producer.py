@@ -1,4 +1,3 @@
-import os
 import time
 import random
 import logging
@@ -54,10 +53,10 @@ def select_candidate_weighted(candidate_ids, state):
 
 def produce_voting_events(election_id, batch_size=200):
     conn = psycopg2.connect(
-        dbname=os.environ['PG_DB'],
-        user=os.environ['PG_USER'],
-        password=os.environ['PG_PASSWORD'],
-        host=os.environ['PG_HOST'],
+        dbname='election_db',
+        user='airflow',
+        password='airflow',
+        host='localhost',
         port='5432'
     )
     cur = conn.cursor()
