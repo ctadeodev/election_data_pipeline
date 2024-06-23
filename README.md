@@ -111,11 +111,11 @@ To run this project locally or in your own environment, follow these steps:
 * Scripts for Snowflake data warehouse setup and cleanup are in `snowflake_scripts`. 
 * In Snowflake, create a new **SQL Worksheet**. Copy the commands in `snowflake_scripts/election_db_setup.sql` and paste it to the newly created SQL worksheet. Make sure to replace the username with the appropriate snowflake username. Run the commands and this should setup the ELECTION_DB. 
 * For the ELECTION_DB_RAW, do the same process but use `snowflake_scripts/election_db_raw_setup.sql`. Snowflake Databases should now look like this:  
-![alt text](res/snowflake-databases.png)
+![Snowflake databases](res/snowflake-databases.png)
 
 ### 5. Start the pipeline
 * Start the dags by unpausing them in the airflow dashboard.  
-![alt text](res/dags.png)
+![dags](res/dags.png)
 * install the required python packages:
   ```bash
   $ pip install -r requirements.txt
@@ -133,7 +133,8 @@ To run this project locally or in your own environment, follow these steps:
 
 ### 6. Visualization:
 * Connect Power BI (or whatever visualization software you prefer) to Snowflake to create visualizations and dashboards. In fact, you can event set this up before starting the registration/voting simulation scripts. This will be provide you with semi-realtime election results.
-
+![Election results](res/election-results.png)  
+![Voters turnout](res/voters-turnout.png)
 ## Directory Structure
 ```graphql
 project-root/
